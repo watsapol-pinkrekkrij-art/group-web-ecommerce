@@ -1,0 +1,999 @@
+openapi: 3.0.4
+info:
+  title: KUSHOP API
+  description: |
+    KUSHOP Project from Kasetsart University Sriracha Campus.
+    
+    **Authentication:**
+    - Most endpoints require Bearer token authentication
+    - Admin-only endpoints require 'admin' role
+    
+    **Available Routes:**
+    - Products Management
+    - Members & Authentication
+    - Shopping Cart
+  version: 0.2.0
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+
+tags:
+  - name: Products
+    description: Product management endpoints
+  - name: Members
+    description: Member registration, authentication and management
+  - name: Cart
+    description: Shopping cart operations
+
+paths:
+  # ==================== PRODUCTS ====================
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      description: |
+        Returns a list of all products.<br>
+        Each product contains details like product ID, name, price, brand, etc.
+      responses:
+        '200':
+          description: A JSON array of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+          
+    post:
+      tags:
+        - Products
+      summary: Create a new product (Admin only)
+      description: Creates a new product in the system
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '201':
+          description: Product created successfully
+        '401':
+          description: Unauthorized - Token required
+        '403':
+          description: Forbidden - Admin role required
+        '409':
+          description: Product ID already exists
+        '500':
+          description: Server error
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      description: Returns a specific product by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+        '500':
+          description: Server error
+          
+    put:
+      tags:
+        - Products
+      summary: Update product (Admin only)
+      description: Updates an existing product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '200':
+          description: Product updated successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '404':
+          description: Product not found
+        '500':
+          description: Server error
+          
+    delete:
+      tags:
+        - Products
+      summary: Delete product (Admin only)
+      description: Deletes a product from the system
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '404':
+          description: Product not found
+        '500':
+          description: Server error
+
+  /products/category/accessory:
+    get:
+      tags:
+        - Products
+      summary: Get accessory products
+      description: Returns all products in accessory category (T01)
+      responses:
+        '200':
+          description: List of accessory products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/category/aggie-shirt:
+    get:
+      tags:
+        - Products
+      summary: Get Aggie shirt products
+      description: Returns all products in Aggie shirt category (T02)
+      responses:
+        '200':
+          description: List of Aggie shirt products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/category/kugen-shirt:
+    get:
+      tags:
+        - Products
+      summary: Get KU Gen shirt products
+      description: Returns all products in KU Gen shirt category (T03)
+      responses:
+        '200':
+          description: List of KU Gen shirt products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/category/kunisit:
+    get:
+      tags:
+        - Products
+      summary: Get KU Nisit products
+      description: Returns all products in KU Nisit category (T04)
+      responses:
+        '200':
+          description: List of KU Nisit products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/category/kushoes:
+    get:
+      tags:
+        - Products
+      summary: Get KU shoes products
+      description: Returns all products in KU shoes category (T05)
+      responses:
+        '200':
+          description: List of KU shoes products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/category/tshirt:
+    get:
+      tags:
+        - Products
+      summary: Get T-shirt products
+      description: Returns all products in T-shirt category (T06)
+      responses:
+        '200':
+          description: List of T-shirt products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/search/{id}:
+    get:
+      tags:
+        - Products
+      summary: Search products
+      description: Search products by keyword
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Search keyword
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+  /products/brand/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get products by brand
+      description: Returns all products from a specific brand
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Brand ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of products from the brand
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '404':
+          description: Brand not found
+        '500':
+          description: Server error
+
+  /products/uploadimg:
+    post:
+      tags:
+        - Products
+      summary: Upload product image (Admin only)
+      description: Uploads an image for a product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                pdId:
+                  type: string
+      responses:
+        '200':
+          description: Image uploaded successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '500':
+          description: Server error
+
+  # ==================== MEMBERS ====================
+  /members:
+    post:
+      tags:
+        - Members
+      summary: Register new member
+      description: Creates a new member account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMember'
+      responses:
+        '201':
+          description: Member registered successfully
+        '409':
+          description: Email already exists
+        '500':
+          description: Server error
+
+  /members/login:
+    post:
+      tags:
+        - Members
+      summary: Member login
+      description: Authenticates a member and returns JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - memEmail
+                - password
+              properties:
+                memEmail:
+                  type: string
+                  format: email
+                  example: "user@ku.th"
+                password:
+                  type: string
+                  format: password
+                  example: "securePassword123"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  member:
+                    $ref: '#/components/schemas/Member'
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Server error
+
+  /members/detail:
+    get:
+      tags:
+        - Members
+      summary: Get member details
+      description: Returns the logged-in member's details
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Member details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '401':
+          description: Unauthorized - Token required
+        '500':
+          description: Server error
+
+  /members/logout:
+    get:
+      tags:
+        - Members
+      summary: Member logout
+      description: Logs out the current member
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /members/uploadimg:
+    post:
+      tags:
+        - Members
+      summary: Upload member profile image
+      description: Uploads a profile image for the logged-in member
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Image uploaded successfully
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /members/all:
+    get:
+      tags:
+        - Members
+      summary: Get all members (Admin only)
+      description: Returns a list of all members
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Member'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '500':
+          description: Server error
+
+  /members/{email}:
+    delete:
+      tags:
+        - Members
+      summary: Delete member (Admin only)
+      description: Deletes a member account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Member email
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Member deleted successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '404':
+          description: Member not found
+        '500':
+          description: Server error
+
+  /members/{email}/role:
+    put:
+      tags:
+        - Members
+      summary: Update member role (Admin only)
+      description: Updates the role of a member (admin/user)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Member email
+          schema:
+            type: string
+            format: email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  enum: [admin, user]
+                  example: "admin"
+      responses:
+        '200':
+          description: Role updated successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '404':
+          description: Member not found
+        '500':
+          description: Server error
+
+  /members/{email}/orders:
+    get:
+      tags:
+        - Members
+      summary: Get member orders (Admin only)
+      description: Returns all orders for a specific member
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Member email
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: List of member orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+        '404':
+          description: Member not found
+        '500':
+          description: Server error
+
+  # ==================== CART ====================
+  /carts/chkcart:
+    post:
+      tags:
+        - Cart
+      summary: Check cart existence
+      description: Checks if a cart exists for the customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cusId
+              properties:
+                cusId:
+                  type: string
+                  example: "user@ku.th"
+      responses:
+        '200':
+          description: Cart check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                  cartId:
+                    type: string
+        '500':
+          description: Server error
+
+  /carts/addcart:
+    post:
+      tags:
+        - Cart
+      summary: Create new cart
+      description: Creates a new shopping cart for a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCart'
+      responses:
+        '201':
+          description: Cart created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '409':
+          description: Cart already exists
+        '500':
+          description: Server error
+
+  /carts/addcartdtl:
+    post:
+      tags:
+        - Cart
+      summary: Add item to cart
+      description: Adds a product to the shopping cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCartDetail'
+      responses:
+        '201':
+          description: Item added to cart successfully
+        '404':
+          description: Cart or product not found
+        '500':
+          description: Server error
+
+  /carts/sumcart/{id}:
+    get:
+      tags:
+        - Cart
+      summary: Get cart summary
+      description: Returns the total amount and item count for a cart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Cart ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cart summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cartId:
+                    type: string
+                  totalAmount:
+                    type: number
+                  itemCount:
+                    type: integer
+        '404':
+          description: Cart not found
+        '500':
+          description: Server error
+
+  /carts/getcart/{id}:
+    get:
+      tags:
+        - Cart
+      summary: Get cart by ID
+      description: Returns cart information
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Cart ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cart details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: Cart not found
+        '500':
+          description: Server error
+
+  /carts/getcartdtl/{id}:
+    get:
+      tags:
+        - Cart
+      summary: Get cart items
+      description: Returns all items in the cart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Cart ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of cart items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartDetail'
+        '404':
+          description: Cart not found
+        '500':
+          description: Server error
+
+  /carts/getcartbycus:
+    post:
+      tags:
+        - Cart
+      summary: Get cart by customer
+      description: Returns the active cart for a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cusId
+              properties:
+                cusId:
+                  type: string
+                  example: "user@ku.th"
+      responses:
+        '200':
+          description: Customer's cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: Cart not found
+        '500':
+          description: Server error
+
+  /carts/delcartdtl:
+    post:
+      tags:
+        - Cart
+      summary: Remove item from cart
+      description: Deletes a specific item from the cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cartId
+                - pdId
+              properties:
+                cartId:
+                  type: string
+                  example: "202510150001"
+                pdId:
+                  type: string
+                  example: "001"
+      responses:
+        '200':
+          description: Item removed successfully
+        '404':
+          description: Cart item not found
+        '500':
+          description: Server error
+
+  /carts/delcart:
+    post:
+      tags:
+        - Cart
+      summary: Delete cart
+      description: Deletes the entire cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cartId
+              properties:
+                cartId:
+                  type: string
+                  example: "202510150001"
+      responses:
+        '200':
+          description: Cart deleted successfully
+        '404':
+          description: Cart not found
+        '500':
+          description: Server error
+
+  /carts/confirmcart:
+    post:
+      tags:
+        - Cart
+      summary: Confirm cart and create order
+      description: Confirms the cart (sets cartCf to true)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cartId
+              properties:
+                cartId:
+                  type: string
+                  example: "202510150001"
+      responses:
+        '200':
+          description: Cart confirmed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cartId:
+                    type: string
+                  message:
+                    type: string
+                    example: "Cart confirmed successfully"
+        '404':
+          description: Cart not found
+        '400':
+          description: Cart is empty
+        '500':
+          description: Server error
+
+# ==================== COMPONENTS ====================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter your JWT token in the format **Bearer &lt;token&gt;**
+
+  schemas:
+    # Product Schemas
+    Product:
+      type: object
+      properties:
+        pdId:
+          type: string
+          example: "001"
+        pdName:
+          type: string
+          example: "White Aggie 2025"
+        pdPrice:
+          type: number
+          example: 299.00
+        pdRemark:
+          type: string
+          example: "เสื้อยืดคุณภาพดี ผ้าฝ้าย 100%"
+        pdTypeId:
+          type: string
+          example: "T06"
+        brandId:
+          type: string
+          example: "B01"
+        brand:
+          $ref: '#/components/schemas/Brand'
+        pdType:
+          $ref: '#/components/schemas/ProductType'
+
+
+    Brand:
+      type: object
+      properties:
+        brandId:
+          type: string
+          example: "B01"
+        brandName:
+          type: string
+          example: "Ku"
+
+    ProductType:
+      type: object
+      properties:
+        pdTypeId:
+          type: string
+          example: "T06"
+        pdTypeName:
+          type: string
+          example: "T-Shirt"
+
+    # Member Schemas
+    Member:
+      type: object
+      properties:
+        memEmail:
+          type: string
+          format: email
+          example: "vayu@gmail.com"
+        memName:
+          type: string
+          example: "VayuZa"
+        dutyId:
+          type: string
+          example: "member"
+        role:
+          type: string
+          enum: [admin, user]
+          example: "user"
+
+
+    # Cart Schemas
+    Cart:
+      type: object
+      properties:
+        cartId:
+          type: string
+          example: "202510150001"
+        cusId:
+          type: string
+          example: "vayu@gmail.com"
+        cartDate:
+          type: string
+          format: date-time
+          example: "2025-10-29"
+        cartCf:
+          type: boolean
+          example: false
+          description: "Cart confirmation status (false = active, true = confirmed)"
+
+    CartDetail:
+      type: object
+      properties:
+        cartId:
+          type: string
+          example: "202510150001"
+        pdId:
+          type: string
+          example: "001"
+        qty:
+          type: integer
+          example: 2
+        price:
+          type: number
+          example: 299.00
+        product:
+          $ref: '#/components/schemas/Product'
